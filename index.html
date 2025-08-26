@@ -3,22 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stopwatch with Laps</title>
+    <title>Stopwatch</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="stopwatch-card">
-    <div class="display">
-        <span id="time">00:00:00</span>
+<div class="container">
+    <h1>STOPWATCH</h1>
+    <div id="time">00:00:00.000</div>
+
+    <div class="buttons">
+        <button id="startBtn">Start</button>
+        <button id="pauseResumeBtn" disabled>Pause</button>
+        <button id="lapBtn" disabled>Lap</button>
+        <button id="resetBtn" disabled>Reset</button>
     </div>
 
-    <div class="controls">
-        <button class="btn start" onclick="startStop()">▶</button>
-        <button class="btn lap" onclick="lap()">⏱</button>
-        <button class="btn reset" onclick="reset()">⏹</button>
+    <div class="laps-container">
+        <h2>Laps:</h2>
+        <ul id="laps"></ul>
     </div>
-
-    <div class="laps" id="laps"></div>
 </div>
 
 <script src="script.js"></script>

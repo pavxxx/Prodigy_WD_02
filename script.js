@@ -1,47 +1,94 @@
-let timer;
-let isRunning = false;
-let seconds = 0, minutes = 0, hours = 0;
+let startTime = 0;
+let elapsedTime = 0;
+let timerInterval;
+let running = false;
 let lapCount = 0;
 
-function updateDisplay() {
-    let h = hours < 10 ? "0" + hours : hours;
-    let m = minutes < 10 ? "0" + minutes : minutes;
-    let s = seconds < 10 ? "0" + seconds : seconds;
-    document.getElementById("time").innerText = `${h}:${m}:${s}`;
+const timeDisplay = document.getElementById("time");
+const startBtn = document.getElementById("startBtn");
+const pauseResumeBtn = document.getElementById("pauseResumeBtn");
+const resetBtn = document.getElementById("resetBtn");
+const lapBtn = document.getElementById("lapBtn");
+const lapsList = document.getElementById("laps");
+
+
+function formatTime(ms) {
+    let hours = Math.floor(ms / 3600000);
+    let minutes = Math.floor((ms % 3600000) / 60000);
+    let seconds = Math.floor((ms % 60000) / 1000);
+    let milliseconds = ms % 1000;
+
+
+    return (
+        String(hours).padStart(2, "0") + ":" +
+        String(minutes).padStart(2, "0") + ":" +
+        String(seconds).padStart(2, "0") + "." +
+        String(milliseconds).padStart(3, "0")
+    );
 }
 
-function startStop() {
-    if (!isRunning) {
-        timer = setInterval(() => {
-            seconds++;
-            if (seconds == 60) { seconds = 0; minutes++; }
-            if (minutes == 60) { minutes = 0; hours++; }
-            updateDisplay();
-        }, 1000);
-        isRunning = true;
+
+function startTimer() {
+    if (!running) {
+        startTime = Date.now() - elapsedTime;
+        timerInterval = setInterval(updateTime, 10);
+        running = true;
+
+        startBtn.disabled = true;
+        pauseResumeBtn.disabled = false;
+        resetBtn.disabled = false;
+        lapBtn.disabled = false;
+        pauseResumeBtn.textContent = "Pause";
+    }
+}
+
+
+function pauseResumeTimer() {
+    if (running) {
+        clearInterval(timerInterval);
+        running = false;
+        pauseResumeBtn.textContent = "Resume";
     } else {
-        clearInterval(timer);
-        isRunning = false;
+        startTimer();
+        pauseResumeBtn.textContent = "Pause";
     }
 }
 
-function reset() {
-    clearInterval(timer);
-    isRunning = false;
-    seconds = 0; minutes = 0; hours = 0;
+
+function resetTimer() {
+    clearInterval(timerInterval);
+    elapsedTime = 0;
+    running = false;
     lapCount = 0;
-    document.getElementById("laps").innerHTML = "";
-    updateDisplay();
+    timeDisplay.textContent = "00:00:00.000";
+    lapsList.innerHTML = "";
+
+
+    startBtn.disabled = false;
+    pauseResumeBtn.disabled = true;
+    resetBtn.disabled = true;
+    lapBtn.disabled = true;
+    pauseResumeBtn.textContent = "Pause";
 }
 
-function lap() {
-    if (isRunning) {
+
+function recordLap() {
+    if (running) {
         lapCount++;
-        let time = document.getElementById("time").innerText;
-        let lapDiv = document.createElement("div");
-        lapDiv.innerText = `Lap ${lapCount}: ${time}`;
-        document.getElementById("laps").prepend(lapDiv); // latest lap on top
+        const li = document.createElement("li");
+        li.textContent = "Lap " + lapCount + ": " + formatTime(elapsedTime);
+        lapsList.appendChild(li);
     }
 }
 
-updateDisplay();
+
+function updateTime() {
+    elapsedTime = Date.now() - startTime;
+    timeDisplay.textContent = formatTime(elapsedTime);
+}
+
+
+startBtn.addEventListener("click", startTimer);
+pauseResumeBtn.addEventListener("click", pauseResumeTimer);
+resetBtn.addEventListener("click", resetTimer);
+lapBtn.addEventListener("click", recordLap);
